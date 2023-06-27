@@ -1,31 +1,33 @@
 package iamValueObject
 
 import (
-	"encoding/json"
+	"errors"
 	"regexp"
 )
 
-type SecretAccessKey struct {
-	secretAccessKey string
+type SecretAccessKey string
+
+func NewSecretAccessKey(value string) (SecretAccessKey, error) {
+	sak := SecretAccessKey(value)
+	if !sak.isValid() {
+		return "", errors.New("InvalidSecretAccessKey")
+	}
+	return sak, nil
 }
 
-func NewSecretAccessKey(secretAccessKey string) *SecretAccessKey {
-	if !isValidSecretAccessKey(secretAccessKey) {
+func NewSecretAccessKeyPanic(value string) SecretAccessKey {
+	sak := SecretAccessKey(value)
+	if !sak.isValid() {
 		panic("InvalidSecretAccessKey")
 	}
-	return &SecretAccessKey{secretAccessKey: secretAccessKey}
+	return sak
 }
 
-func (self *SecretAccessKey) String() string {
-	return self.secretAccessKey
+func (sak SecretAccessKey) isValid() bool {
+	re := regexp.MustCompile(`^(?<![A-Za-z0-9\/+=])[A-Za-z0-9\/+=]{40}(?![A-Za-z0-9\/+=])$`)
+	return re.MatchString(string(sak))
 }
 
-func (self *SecretAccessKey) MarshalJSON() ([]byte, error) {
-	return json.Marshal(self.secretAccessKey)
-}
-
-func isValidSecretAccessKey(secretAccessKey string) bool {
-	pattern := `^(?<![A-Za-z0-9\/+=])[A-Za-z0-9\/+=]{40}(?![A-Za-z0-9\/+=])$`
-	matched, _ := regexp.MatchString(pattern, secretAccessKey)
-	return matched
+func (sak SecretAccessKey) String() string {
+	return string(sak)
 }
