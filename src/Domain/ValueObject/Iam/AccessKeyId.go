@@ -1,31 +1,33 @@
 package iamValueObject
 
 import (
-	"encoding/json"
+	"errors"
 	"regexp"
 )
 
-type AccessKeyId struct {
-	accessKeyId string
+type AccessKeyId string
+
+func NewAccessKeyId(value string) (AccessKeyId, error) {
+	aki := AccessKeyId(value)
+	if !aki.isValid() {
+		return "", errors.New("InvalidAccessKeyId")
+	}
+	return aki, nil
 }
 
-func NewAccessKeyId(accessKeyId string) *AccessKeyId {
-	if !isValidAccessKeyId(accessKeyId) {
+func NewAccessKeyIdPanic(value string) AccessKeyId {
+	aki := AccessKeyId(value)
+	if !aki.isValid() {
 		panic("InvalidAccessKeyId")
 	}
-	return &AccessKeyId{accessKeyId: accessKeyId}
+	return aki
 }
 
-func (self *AccessKeyId) String() string {
-	return self.accessKeyId
+func (aki AccessKeyId) isValid() bool {
+	re := regexp.MustCompile(`^(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])$`)
+	return re.MatchString(string(aki))
 }
 
-func (self *AccessKeyId) MarshalJSON() ([]byte, error) {
-	return json.Marshal(self.accessKeyId)
-}
-
-func isValidAccessKeyId(accessKeyId string) bool {
-	pattern := `^(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])$`
-	matched, _ := regexp.MatchString(pattern, accessKeyId)
-	return matched
+func (aki AccessKeyId) String() string {
+	return string(aki)
 }
