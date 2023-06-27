@@ -12,8 +12,8 @@ type BackupKeys struct {
 func NewBackupKeys(
 	accessKeyId iamValueObject.AccessKeyId,
 	secretAccessKey iamValueObject.SecretAccessKey,
-) *BackupKeys {
-	return &BackupKeys{
+) BackupKeys {
+	return BackupKeys{
 		AccessKeyId:     accessKeyId,
 		SecretAccessKey: secretAccessKey,
 	}
